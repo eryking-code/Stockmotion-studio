@@ -88,7 +88,7 @@ input[type=range]{width:118px;accent-color:var(--acc);cursor:pointer}
 <body>
 <header>
   <div class="logo">▶</div>
-  <div><h1>StockMotion Studio</h1><p>Generator motion graphics harian • v2 tema niche & multi-rasio • export MP4 siap Adobe Stock</p></div>
+  <div><h1>StockMotion Studio</h1><p>Generator motion graphics harian • v3 Dataflow Network & 4K UHD • export MP4 siap Adobe Stock</p></div>
   <div class="hbtns">
     <button class="btn primary" id="btnDaily">📦 Paket Harian</button>
     <button class="btn blue" id="btnZip">🗜 Unduh ZIP</button>
@@ -120,7 +120,9 @@ input[type=range]{width:118px;accent-color:var(--acc);cursor:pointer}
         <option value="1280x720">1280×720 • 16:9</option>
         <option value="1080x1920">1080×1920 • 9:16</option>
         <option value="720x1280">720×1280 • 9:16</option>
-        <option value="1080x1080">1080×1080 • 1:1</option></select></div>
+        <option value="1080x1080">1080×1080 • 1:1</option>
+        <option value="3840x2160">4K UHD 3840×2160 (16:9)</option></select></div>
+      <p style="font-size:11px;color:var(--mut);margin:-4px 0 10px;line-height:1.5">Catatan: export 4K UHD rendernya berat &amp; bisa lama di sebagian komputer — gunakan seperlunya.</p>
       <div class="row"><label>Frame rate</label><select id="optFps">
         <option value="24">24 fps</option><option value="25">25 fps</option>
         <option value="30" selected>30 fps</option></select></div>
@@ -177,11 +179,11 @@ input[type=range]{width:118px;accent-color:var(--acc);cursor:pointer}
   <h4>2. Syarat teknis Adobe Stock (resmi)</h4>
   <ul>
     <li>Durasi <b>5–60 detik</b> (pilihan di app: 5/10/15/30 — semua lolos)</li>
-    <li>Resolusi <b>1920×1080</b> atau <b>1280×720</b> (keduanya diterima). Rasio <b>9:16</b> &amp; <b>1:1</b> cocok untuk stok vertikal/sosial (Reels, TikTok, Shorts)</li>
+    <li>Resolusi <b>1920×1080</b> atau <b>1280×720</b> (keduanya diterima). Rasio <b>9:16</b> &amp; <b>1:1</b> cocok untuk stok vertikal/sosial (Reels, TikTok, Shorts). Tersedia juga opsi <b>4K UHD 3840×2160</b> untuk stok premium (render lebih berat &amp; lama)</li>
     <li>Tema niche = palet + template prioritas + overlay + judul/keyword niche otomatis (judul selalu ≤70 karakter, aman untuk CSV Adobe)</li>
     <li>Frame rate standar: <b>24 / 25 / 30 fps</b></li>
     <li>Format <code>MP4</code> (H.264) ✅ — tanpa audio (tidak masalah)</li>
-    <li>Looping mulus = nilai jual tinggi (7 dari 8 template dibuat seamless loop)</li>
+    <li>Looping mulus = nilai jual tinggi (8 dari 9 template dibuat seamless loop)</li>
   </ul>
   <h4>3. Upload</h4>
   <p>Buka <b>contributor.stock.adobe.com</b> → upload file MP4 → isi judul &amp; keyword (pakai <b>CSV Metadata</b> dari app ini sebagai contekan, atau extension StockGen AutoFill) → Submit. Komisi video <b>35%</b> — lebih tinggi dari foto (33%).</p>
@@ -235,11 +237,11 @@ const THEMES={
  umum:{name:"Umum"},
  wedding:{name:"Wedding Elegant",bg:"#fffaf1",colors:["#d4af37","#e8b4b8","#b76e79","#8a6d3b"],cats:["particles","rings","blobs"],overlay:"sparkle"},
  promo:{name:"Promo Sale",bg:"#fff6e6",colors:["#e63946","#ff8a3d","#f5b942","#c1121f"],cats:["stripes","shapes","badge"],overlay:"confetti"},
- tech:{name:"Tech AI",bg:"#050914",colors:["#00e5ff","#4f7cff","#7b5cff","#0ea5e9"],cats:["grid","stripes","rings"],overlay:null},
+ tech:{name:"Tech AI",bg:"#050914",colors:["#00e5ff","#4f7cff","#7b5cff","#0ea5e9"],cats:["grid","dataflow","stripes","rings"],overlay:null},
  ramadan:{name:"Ramadhan Islami",bg:"#071a12",colors:["#d4af37","#2ea36b","#0f5132","#f5e6b8"],cats:["particles","rings","shapes"],overlay:"sparkle"},
  christmas:{name:"Christmas & New Year",bg:"#0a1f14",colors:["#d62828","#2a9d4a","#f5b942","#ffffff"],cats:["particles","shapes","rings"],overlay:"snow"},
 };
-const TN={waves:"Flowing Waves",particles:"Bokeh Particles",rings:"Pulsing Rings",stripes:"Flowing Stripes",blobs:"Organic Blobs",grid:"Neon Grid",shapes:"Falling Shapes",badge:"Badge Reveal"};
+const TN={waves:"Flowing Waves",particles:"Bokeh Particles",rings:"Pulsing Rings",stripes:"Flowing Stripes",blobs:"Organic Blobs",grid:"Neon Grid",dataflow:"Dataflow Network",shapes:"Falling Shapes",badge:"Badge Reveal"};
 const TMETA={
  wedding:{colors:["Golden","Rose Gold","Ivory"],
   titles:["Elegant {C} {T} Wedding Motion Background","Luxury {C} {T} Wedding Celebration Background Loop","Romantic {C} {T} Wedding Video Background Animation"],
@@ -262,6 +264,7 @@ const CATS=[
  {id:"waves",name:"Gelombang",icon:"🌊"},{id:"particles",name:"Partikel",icon:"✨"},
  {id:"rings",name:"Cincin",icon:"⭕"},{id:"stripes",name:"Garis Alir",icon:"〰️"},
  {id:"blobs",name:"Blob",icon:"🫧"},{id:"grid",name:"Grid Neon",icon:"🌆"},
+ {id:"dataflow",name:"Dataflow Network",icon:"🌐"},
  {id:"shapes",name:"Hujan Bentuk",icon:"🎊"},{id:"badge",name:"Badge Kinetik",icon:"🏅"},
 ];
 let activePal=0,useCustom=false;
@@ -271,7 +274,29 @@ function curColors(){
   return useCustom?{bg:$("cbg").value,colors:[$("c1").value,$("c2").value,$("c1").value,$("c2").value],name:"Custom"}:{...PALETTES[activePal]};
 }
 
-/* ================= 8 TEMPLATE GERAKAN ================= */
+/* sprite bercahaya pra-render (per warna) — dipakai template dataflow demi performa 4K */
+const _sprCache={};
+function _rgb(hex){const h=String(hex).replace("#","");const n=parseInt(h.length===3?h.split("").map(c=>c+c).join(""):h,16);return [n>>16&255,n>>8&255,n&255]}
+function glowSprite(color){
+  const key="g"+color;if(_sprCache[key])return _sprCache[key];
+  const s=128,cv=document.createElement("canvas");cv.width=cv.height=s;const g=cv.getContext("2d");
+  const [r,gg,b]=_rgb(color),gr=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+  gr.addColorStop(0,"rgba(255,255,255,0.9)");gr.addColorStop(0.25,`rgba(${r},${gg},${b},0.85)`);
+  gr.addColorStop(0.6,`rgba(${r},${gg},${b},0.28)`);gr.addColorStop(1,`rgba(${r},${gg},${b},0)`);
+  g.fillStyle=gr;g.fillRect(0,0,s,s);
+  return _sprCache[key]=cv;
+}
+function orbSprite(color){
+  const key="o"+color;if(_sprCache[key])return _sprCache[key];
+  const s=128,cv=document.createElement("canvas");cv.width=cv.height=s;const g=cv.getContext("2d");
+  const [r,gg,b]=_rgb(color),gr=g.createRadialGradient(s*0.38,s*0.34,s*0.05,s/2,s/2,s/2);
+  gr.addColorStop(0,"rgba(255,255,255,0.95)");gr.addColorStop(0.35,`rgba(${r},${gg},${b},0.75)`);
+  gr.addColorStop(0.8,`rgba(${r},${gg},${b},0.30)`);gr.addColorStop(1,`rgba(${r},${gg},${b},0)`);
+  g.fillStyle=gr;g.fillRect(0,0,s,s);
+  return _sprCache[key]=cv;
+}
+
+/* ================= 9 TEMPLATE GERAKAN ================= */
 const MTPL={
 waves(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
@@ -362,6 +387,63 @@ grid(x,t,W,H,P,C){
   }
   x.globalAlpha=1;
 },
+dataflow(x,t,W,H,P,C){
+  x.fillStyle=C.bg;x.fillRect(0,0,W,H);
+  const p=(((t/P.dur)%1)+1)%1,T2=Math.PI*2,mn=Math.min(W,H);
+  const vg=x.createRadialGradient(W/2,H/2,mn*0.35,W/2,H/2,Math.max(W,H)*0.75);
+  vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(0,0,0,0.22)");
+  x.fillStyle=vg;x.fillRect(0,0,W,H);
+  /* kamera sangat lambat — periodik penuh, kembali persis di akhir loop */
+  const cs=1.015+0.015*Math.sin(T2*p);
+  x.save();x.translate(W/2+0.008*W*Math.sin(T2*p),H/2+0.008*H*Math.cos(T2*p));x.scale(cs,cs);x.translate(-W/2,-H/2);
+  const gF=clamp(P.glow==null||isNaN(P.glow)?1:P.glow,0.25,2),nc=P.cols.length;
+  const qPt=(e,u)=>{const A=P.nodes[e.a],B=P.nodes[e.b],v=1-u;
+    return [(v*v*A.x+2*v*u*e.cx+u*u*B.x)*W,(v*v*A.y+2*v*u*e.cy+u*u*B.y)*H]};
+  /* layer jauh: node redup, parallax kecil (boleh melintasi zona tenang) */
+  for(const f of P.far){
+    const fx=(f.x+f.ax*Math.sin(T2*p+f.ph))*W,fy=(f.y+f.ay*Math.cos(T2*p+f.ph))*H,sz=f.r*mn*2.4;
+    x.globalAlpha=f.a*(0.7+0.3*Math.sin(T2*p+f.ph))*0.85;
+    x.drawImage(orbSprite(P.cols[f.ci%nc]),fx-sz/2,fy-sz/2,sz,sz);
+  }
+  x.globalAlpha=1;x.lineCap="round";
+  /* kanal kaca: goresan lebar transparan + inti tipis */
+  for(const e of P.edges){
+    const A=P.nodes[e.a],B=P.nodes[e.b],col=P.cols[e.ci%nc];
+    x.beginPath();x.moveTo(A.x*W,A.y*H);x.quadraticCurveTo(e.cx*W,e.cy*H,B.x*W,B.y*H);
+    x.strokeStyle=hexA(col,0.10);x.lineWidth=Math.max(1,0.007*mn);x.stroke();
+    x.strokeStyle=hexA(col,0.34);x.lineWidth=Math.max(0.6,0.0016*mn);x.stroke();
+  }
+  /* partikel cahaya di sepanjang kanal (sprite, bukan gradient per frame) */
+  const flare=new Array(P.nodes.length).fill(0);
+  for(const pt of P.parts){
+    const e=P.edges[pt.e];
+    let u=(pt.off+pt.dir*pt.cyc*p)%1;if(u<0)u+=1;
+    if(u<0.06)flare[e.a]=Math.max(flare[e.a],1-u/0.06);
+    else if(u>0.94)flare[e.b]=Math.max(flare[e.b],(u-0.94)/0.06);
+    const spr=glowSprite(P.cols[pt.ci%nc]),base=0.011*mn*pt.s*(0.8+0.4*gF);
+    for(let j=4;j>=0;j--){
+      let uu=(u-pt.dir*0.022*j)%1;if(uu<0)uu+=1;
+      const qp=qPt(e,uu),sz=base*(j===0?3.2:1.7)*(1-j*0.12);
+      x.globalAlpha=(j===0?0.95:0.30*(1-j/5))*clamp(gF,0.4,1.6);
+      x.drawImage(spr,qp[0]-sz/2,qp[1]-sz/2,sz,sz);
+    }
+  }
+  x.globalAlpha=1;
+  /* node kaca bercahaya: denyut periodik + flare saat partikel tiba */
+  P.nodes.forEach((n,i)=>{
+    const nx=n.x*W,ny=n.y*H,r=Math.max(1.2,n.r*mn),col=P.cols[n.ci%nc];
+    const br=clamp(0.62+0.38*Math.sin(T2*n.k*p+n.ph)+0.55*(flare[i]||0),0.12,1.25);
+    const hs=r*7*(0.7+0.5*br);
+    x.globalAlpha=0.35*br*clamp(gF,0.4,1.5);x.drawImage(glowSprite(col),nx-hs/2,ny-hs/2,hs,hs);
+    const os=r*2.3;
+    x.globalAlpha=clamp(0.55+0.45*br,0.2,1);x.drawImage(orbSprite(col),nx-os/2,ny-os/2,os,os);
+    x.globalAlpha=clamp(0.35+0.55*br,0.1,1);x.strokeStyle=hexA(col,0.85);x.lineWidth=Math.max(0.7,0.0022*mn);
+    x.beginPath();x.arc(nx,ny,r,0,7);x.stroke();
+    x.globalAlpha=0.85*clamp(br,0.2,1.2);x.fillStyle="#ffffff";
+    x.beginPath();x.arc(nx-r*0.32,ny-r*0.36,Math.max(0.5,r*0.2),0,7);x.fill();
+  });
+  x.globalAlpha=1;x.restore();
+},
 shapes(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
   const m=H*0.1,span=H+2*m,mn=Math.min(W,H);
@@ -418,6 +500,36 @@ grid(pr,dur,den){return{dur,horizon:rrange(pr,0.5,0.6),k:rint(pr,2,4),gridC:pick
 shapes(pr,dur,den){const n=clamp(Math.round(rint(pr,14,24)*(den||1)),6,48),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5),sh=["circle","square","tri","star","plus"];
   return{dur,items:Array.from({length:n},()=>({x:pr(),y:pr(),s:rrange(pr,0.015,0.05),rot:pr()*6.28,vr:rrange(pr,-1.5,1.5),
     k:rint(pr,1,2),ph:pr()*6.28,c:pick(pr,cols),shape:pick(pr,sh)}))}},
+dataflow(pr,dur,den){den=den||1;
+  const czx=0.58,czy=0.62,nM=clamp(Math.round(14*den),7,26),nF=clamp(Math.round(11*den),6,22),nodes=[];
+  let guard=0;
+  while(nodes.length<nM&&guard++<600){
+    const px=rrange(pr,0.06,0.94),py=rrange(pr,0.06,0.94);
+    if(px<czx+0.03&&py<czy+0.03)continue; /* zona tenang: tanpa node utama (ada buffer) */
+    let ok=true;for(const n of nodes){if((n.x-px)*(n.x-px)+(n.y-py)*(n.y-py)<0.0075){ok=false;break}}
+    if(!ok)continue;
+    nodes.push({x:px,y:py,r:rrange(pr,0.008,0.017),k:rint(pr,1,2),ph:pr()*6.283,ci:rint(pr,0,3)});
+  }
+  const far=Array.from({length:nF},()=>({x:pr(),y:pr(),r:rrange(pr,0.0035,0.008),ph:pr()*6.283,
+    ax:rrange(pr,0.002,0.006),ay:rrange(pr,0.002,0.005),ci:rint(pr,0,3),a:rrange(pr,0.25,0.5)}));
+  const eset=new Set(),edges=[];
+  nodes.forEach((n,i)=>{
+    const ds=nodes.map((m,j)=>({j,d2:(m.x-n.x)*(m.x-n.x)+(m.y-n.y)*(m.y-n.y)})).filter(o=>o.j!==i).sort((a,b)=>a.d2-b.d2);
+    const deg=rint(pr,2,3);
+    for(let q=0;q<Math.min(deg,ds.length);q++){
+      const j=ds[q].j,key=Math.min(i,j)+"-"+Math.max(i,j);
+      if(eset.has(key))continue;eset.add(key);
+      const m=nodes[j],om=rrange(pr,-0.16,0.16);
+      edges.push({a:i,b:j,cx:(n.x+m.x)/2-(m.y-n.y)*om,cy:(n.y+m.y)/2+(m.x-n.x)*om,ci:rint(pr,0,3)});
+    }
+  });
+  const parts=[];
+  edges.forEach((e,ei)=>{
+    const npp=clamp(Math.round(rrange(pr,1,2.4)*den),1,4);
+    for(let q=0;q<npp;q++)parts.push({e:ei,off:pr(),dir:pr()<0.5?-1:1,cyc:rint(pr,1,3),s:rrange(pr,0.6,1.3),ci:rint(pr,0,3)});
+  });
+  return {dur,czx,czy,nodes,far,edges,parts,cols:["#00e5ff","#4f7cff","#7b5cff","#0ea5e9"]};
+},
 badge(pr,dur,den){return{dur,text:"PREMIUM",sparks:Array.from({length:clamp(Math.round(6*(den||1)),3,12)},()=>({dx:rrange(pr,-1.4,1.4),dy:rrange(pr,-1.4,1.4),ph:pr()*6.28}))}},
 };
 /* NOTE: warna params memakai palet item (dioverride saat item dibuat) */
@@ -440,6 +552,7 @@ const MMETA={
  blobs:{t:"Morphing {C} Organic Blobs Colorful Motion Background",k:["blobs","organic","morphing","abstract","background","motion graphics","animation","loop","seamless","colorful","fluid","gradient"]},
  grid:{t:"Retro {C} Neon Grid Synthwave Motion Background",k:["synthwave","neon","grid","retro","80s","abstract","background","motion graphics","animation","loop","seamless","vaporwave","sunset"]},
  shapes:{t:"Falling {C} Geometric Shapes Confetti Motion Background",k:["confetti","falling","geometric","shapes","abstract","background","motion graphics","animation","loop","seamless","celebration","colorful","party"]},
+ dataflow:{t:"Abstract {C} Data Network Particles Plexus Motion Background",k:["data network","digital particles","technology background","artificial intelligence","cloud computing","connectivity","nodes","plexus","futuristic","data stream","cyber","global network","abstract","loop","seamless","network","big data","internet","digital","communication","server","data flow","virtual","innovation","science","web","signals","mesh"]},
  badge:{t:"Animated {C} Badge Logo Reveal Motion Graphics",k:["badge","logo","reveal","intro","emblem","motion graphics","animation","premium","stamp","opener","kinetic","branding"]},
 };
 let items=[],itemSeq=1,blobs={};
@@ -659,7 +772,8 @@ async function recordItem(it,onProg){
       video:{codec:"avc",width:W,height:H},fastStart:"in-memory",firstTimestampBehavior:"offset"});
     const enc=new VideoEncoder({output:(ch,meta)=>muxer.addVideoChunk(ch,meta),error:e=>{throw e}});
     const bitrate=Math.round(W*H*fps*0.12);
-    try{enc.configure({codec:"avc1.640028",width:W,height:H,bitrate,framerate:fps,avc:{format:"avc"}})}
+    const codecMain=(W>1920||W*H>2073600)?"avc1.640034":"avc1.640028"; /* frame >1080p (4K) butuh H.264 level >= 5.1 */
+    try{enc.configure({codec:codecMain,width:W,height:H,bitrate,framerate:fps,avc:{format:"avc"}})}
     catch(e){enc.configure({codec:"avc1.42E01E",width:W,height:H,bitrate,framerate:fps,avc:{format:"avc"}})}
     const kfEvery=Math.round(fps*2);
     for(let i=0;i<frames;i++){
