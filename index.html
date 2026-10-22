@@ -74,6 +74,12 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .guide code{background:#10142a;padding:2px 7px;border-radius:6px;color:var(--acc);font-size:12px}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#232a4d;border:1px solid var(--acc);color:var(--txt);padding:12px 22px;border-radius:14px;font-size:13.5px;opacity:0;transition:.25s;z-index:200;max-width:90vw}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.themechips{display:flex;flex-wrap:wrap;gap:6px}
+.tchip{border:1px solid var(--line);background:#10142a;color:var(--mut);border-radius:20px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit;transition:.15s}
+.tchip:hover{border-color:var(--acc);color:var(--txt)}
+.tchip.active{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#1a1405;border-color:transparent;font-weight:700}
+input[type=range]{width:118px;accent-color:var(--acc);cursor:pointer}
+.rval{font-size:12px;color:var(--acc);min-width:36px;text-align:right;font-weight:700}
 .badge-live{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:3px 9px;border-radius:12px;letter-spacing:1px}
 .vthumb{position:relative}
 @media(max-width:900px){.layout{grid-template-columns:1fr}}
@@ -82,7 +88,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 <body>
 <header>
   <div class="logo">▶</div>
-  <div><h1>StockMotion Studio</h1><p>Generator motion graphics harian • export MP4 siap Adobe Stock</p></div>
+  <div><h1>StockMotion Studio</h1><p>Generator motion graphics harian • v2 tema niche & multi-rasio • export MP4 siap Adobe Stock</p></div>
   <div class="hbtns">
     <button class="btn primary" id="btnDaily">📦 Paket Harian</button>
     <button class="btn blue" id="btnZip">🗜 Unduh ZIP</button>
@@ -96,6 +102,9 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div class="row" style="margin-top:6px"><label>Campur semua kategori</label>
       <label class="switch"><input type="checkbox" id="optMix" checked><span class="slider"></span></label></div>
     </div>
+    <div class="card"><h3>🎯 Tema Niche</h3><div class="themechips" id="themeChips"></div>
+      <p style="font-size:11px;color:var(--mut);margin-top:8px;line-height:1.6">Tema mengatur palet, template prioritas, efek overlay &amp; metadata niche sekaligus. "Umum" = perilaku bebas v1.</p>
+    </div>
     <div class="card"><h3>🎨 Palet Warna</h3><div class="pal-grid" id="palGrid"></div>
       <div class="row"><label>Warna custom 1</label><input type="color" id="c1" value="#ff6b35"></div>
       <div class="row"><label>Warna custom 2</label><input type="color" id="c2" value="#f5b942"></div>
@@ -106,14 +115,23 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div class="row"><label>Durasi</label><select id="optDur">
         <option value="5">5 detik</option><option value="10" selected>10 detik</option>
         <option value="15">15 detik</option><option value="30">30 detik</option></select></div>
-      <div class="row"><label>Resolusi</label><select id="optRes">
-        <option value="1280x720">1280×720 HD</option>
-        <option value="1920x1080" selected>1920×1080 Full HD</option></select></div>
+      <div class="row"><label>Resolusi / rasio</label><select id="optRes">
+        <option value="1920x1080" selected>1920×1080 • 16:9</option>
+        <option value="1280x720">1280×720 • 16:9</option>
+        <option value="1080x1920">1080×1920 • 9:16</option>
+        <option value="720x1280">720×1280 • 9:16</option>
+        <option value="1080x1080">1080×1080 • 1:1</option></select></div>
       <div class="row"><label>Frame rate</label><select id="optFps">
         <option value="24">24 fps</option><option value="25">25 fps</option>
         <option value="30" selected>30 fps</option></select></div>
       <div class="row"><label>Jumlah video</label><input type="number" id="optCount" value="8" min="1" max="24"></div>
       <div class="row"><label>Teks badge</label><input type="text" id="optBadgeText" value="PREMIUM"></div>
+      <div class="row"><label>Kecepatan</label><span style="display:flex;align-items:center;gap:6px"><input type="range" id="optSpeed" min="0.5" max="2" step="0.1" value="1"><span class="rval" id="speedVal">1.0×</span></span></div>
+      <div class="row"><label>Kepadatan</label><span style="display:flex;align-items:center;gap:6px"><input type="range" id="optDensity" min="0.5" max="2" step="0.1" value="1"><span class="rval" id="densityVal">1.0×</span></span></div>
+      <div class="row"><label>Intensitas glow</label><span style="display:flex;align-items:center;gap:6px"><input type="range" id="optGlow" min="0" max="2" step="0.1" value="1"><span class="rval" id="glowVal">1.0×</span></span></div>
+      <div class="row"><label>Arah gerak</label><select id="optDir">
+        <option value="normal" selected>Normal</option><option value="terbalik">Terbalik</option>
+        <option value="acak">Acak per item</option></select></div>
     </div>
     <div class="card"><h3>✨ Generate</h3>
       <button class="btn primary" id="btnGenerate" style="width:100%;margin-bottom:8px">▶ Generate Sekarang</button>
@@ -155,11 +173,12 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 <div class="modal-back" id="modalGuide"><div class="modal guide">
   <button class="x" data-close>✕</button><h2>📘 Panduan Upload Video ke Adobe Stock</h2>
   <h4>1. Generate &amp; rekam</h4>
-  <p>Klik <b>Generate Sekarang</b> / <b>Paket Harian</b>, tonton preview live-nya, lalu <b>Rekam Semua</b> (atau ⬇ MP4 per video). File yang diunduh sudah <code>.mp4</code> (H.264) — format yang diterima Adobe Stock.</p>
+  <p>Pilih <b>Tema Niche</b> dulu (opsional), atur rasio &amp; variasi, lalu klik <b>Generate Sekarang</b> / <b>Paket Harian</b>, tonton preview live-nya, dan <b>Rekam Semua</b> (atau ⬇ MP4 per video). File yang diunduh sudah <code>.mp4</code> (H.264) — format yang diterima Adobe Stock.</p>
   <h4>2. Syarat teknis Adobe Stock (resmi)</h4>
   <ul>
     <li>Durasi <b>5–60 detik</b> (pilihan di app: 5/10/15/30 — semua lolos)</li>
-    <li>Resolusi <b>1920×1080</b> atau <b>1280×720</b> (keduanya diterima)</li>
+    <li>Resolusi <b>1920×1080</b> atau <b>1280×720</b> (keduanya diterima). Rasio <b>9:16</b> &amp; <b>1:1</b> cocok untuk stok vertikal/sosial (Reels, TikTok, Shorts)</li>
+    <li>Tema niche = palet + template prioritas + overlay + judul/keyword niche otomatis (judul selalu ≤70 karakter, aman untuk CSV Adobe)</li>
     <li>Frame rate standar: <b>24 / 25 / 30 fps</b></li>
     <li>Format <code>MP4</code> (H.264) ✅ — tanpa audio (tidak masalah)</li>
     <li>Looping mulus = nilai jual tinggi (7 dari 8 template dibuat seamless loop)</li>
@@ -209,7 +228,36 @@ const PALETTES=[
  {name:"Monokrom",bg:"#ffffff",colors:["#111111","#555555","#999999","#dddddd"]},
  {name:"Bumi",bg:"#faf7f0",colors:["#7c4a21","#c68b59","#3f6212","#292524"]},
 ];
-const COLOR_EN={Senja:"Warm",Samudra:"Blue",Hutan:"Green",Neon:"Neon",Gurun:"Golden",Permen:"Pink",Monokrom:"Black",Bumi:"Earth",Custom:"Colorful"};
+const COLOR_EN={Senja:"Warm",Samudra:"Blue",Hutan:"Green",Neon:"Neon",Gurun:"Golden",Permen:"Pink",Monokrom:"Black",Bumi:"Earth",Custom:"Colorful",
+ "Wedding Elegant":"Golden","Promo Sale":"Vibrant","Tech AI":"Electric","Ramadhan Islami":"Emerald","Christmas & New Year":"Festive"};
+/* ================= TEMA NICHE (v2) ================= */
+const THEMES={
+ umum:{name:"Umum"},
+ wedding:{name:"Wedding Elegant",bg:"#fffaf1",colors:["#d4af37","#e8b4b8","#b76e79","#8a6d3b"],cats:["particles","rings","blobs"],overlay:"sparkle"},
+ promo:{name:"Promo Sale",bg:"#fff6e6",colors:["#e63946","#ff8a3d","#f5b942","#c1121f"],cats:["stripes","shapes","badge"],overlay:"confetti"},
+ tech:{name:"Tech AI",bg:"#050914",colors:["#00e5ff","#4f7cff","#7b5cff","#0ea5e9"],cats:["grid","stripes","rings"],overlay:null},
+ ramadan:{name:"Ramadhan Islami",bg:"#071a12",colors:["#d4af37","#2ea36b","#0f5132","#f5e6b8"],cats:["particles","rings","shapes"],overlay:"sparkle"},
+ christmas:{name:"Christmas & New Year",bg:"#0a1f14",colors:["#d62828","#2a9d4a","#f5b942","#ffffff"],cats:["particles","shapes","rings"],overlay:"snow"},
+};
+const TN={waves:"Flowing Waves",particles:"Bokeh Particles",rings:"Pulsing Rings",stripes:"Flowing Stripes",blobs:"Organic Blobs",grid:"Neon Grid",shapes:"Falling Shapes",badge:"Badge Reveal"};
+const TMETA={
+ wedding:{colors:["Golden","Rose Gold","Ivory"],
+  titles:["Elegant {C} {T} Wedding Motion Background","Luxury {C} {T} Wedding Celebration Background Loop","Romantic {C} {T} Wedding Video Background Animation"],
+  k:["wedding","elegant","luxury","romantic","celebration","marriage","invitation","ceremony","love","bride","groom","anniversary","party"]},
+ promo:{colors:["Red Orange","Vibrant","Dynamic"],
+  titles:["{C} {T} Sale Promo Discount Motion Background","Vibrant {C} {T} Flash Sale Promo Background Loop","Energetic {C} {T} Shopping Sale Video Background"],
+  k:["sale","promo","discount","shopping","flash sale","offer","retail","marketing","advertisement","banner","commerce","deal","promotion"]},
+ tech:{colors:["Electric Blue","Cyber","Digital"],
+  titles:["Futuristic {C} {T} Technology AI Motion Background","{C} {T} Digital Network Technology Background Loop","Modern {C} {T} Artificial Intelligence Video Background"],
+  k:["technology","artificial intelligence","digital","futuristic","network","data","cyber","innovation","science","circuit","software","internet","tech"]},
+ ramadan:{colors:["Emerald Gold","Golden","Royal Green"],
+  titles:["{C} {T} Ramadan Islamic Motion Background","Elegant {C} {T} Ramadan Kareem Video Background","Sacred {C} {T} Eid Islamic Celebration Background Loop"],
+  k:["ramadan","islamic","eid","muslim","kareem","mubarak","arabic","holy month","religious","celebration","islam","greeting","lantern"]},
+ christmas:{colors:["Festive Red","Holiday","Winter"],
+  titles:["{C} {T} Christmas Snow Motion Background","Festive {C} {T} New Year Celebration Background Loop","Magical {C} {T} Christmas Winter Video Background"],
+  k:["christmas","new year","winter","snow","holiday","festive","celebration","xmas","december","snowfall","party","greeting","seasonal"]},
+};
+let activeTheme="umum";
 const CATS=[
  {id:"waves",name:"Gelombang",icon:"🌊"},{id:"particles",name:"Partikel",icon:"✨"},
  {id:"rings",name:"Cincin",icon:"⭕"},{id:"stripes",name:"Garis Alir",icon:"〰️"},
@@ -217,7 +265,11 @@ const CATS=[
  {id:"shapes",name:"Hujan Bentuk",icon:"🎊"},{id:"badge",name:"Badge Kinetik",icon:"🏅"},
 ];
 let activePal=0,useCustom=false;
-function curColors(){return useCustom?{bg:$("cbg").value,colors:[$("c1").value,$("c2").value,$("c1").value,$("c2").value],name:"Custom"}:{...PALETTES[activePal]}}
+function curColors(){
+  if(activeTheme!=="umum"&&THEMES[activeTheme]&&THEMES[activeTheme].colors)
+    return {bg:THEMES[activeTheme].bg,colors:[...THEMES[activeTheme].colors],name:THEMES[activeTheme].name};
+  return useCustom?{bg:$("cbg").value,colors:[$("c1").value,$("c2").value,$("c1").value,$("c2").value],name:"Custom"}:{...PALETTES[activePal]};
+}
 
 /* ================= 8 TEMPLATE GERAKAN ================= */
 const MTPL={
@@ -235,32 +287,32 @@ waves(x,t,W,H,P,C){
 },
 particles(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
-  const m=Math.max(W,H)*0.08,span=H+2*m;
+  const m=Math.max(W,H)*0.08,span=H+2*m,mn=Math.min(W,H);
   for(const d of P.dots){
-    const y=(((d.y+(t/P.dur)*span*d.k)%span)+span)%span-m;
-    const px=d.x+Math.sin(t*d.dr+d.ph)*W*0.025;
+    const y=(((d.y*span+(t/P.dur)*span*d.k)%span)+span)%span-m;
+    const px=d.x*W+Math.sin(t*d.dr+d.ph)*W*0.025;
     x.fillStyle=hexA(d.c,0.3+0.7*Math.abs(Math.sin(t*1.6+d.ph)));
-    x.beginPath();x.arc(px,y,d.r,0,7);x.fill();
+    x.beginPath();x.arc(px,y,Math.max(1,d.r*mn),0,7);x.fill();
   }
 },
 rings(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
   const maxR=Math.hypot(W,H)*0.55;
+  x.lineWidth=Math.max(1,P.w*Math.min(W,H));
   for(let i=0;i<P.n;i++){
     const rr=((i/P.n)*maxR+(t/P.dur)*maxR*P.k)%maxR;
     x.strokeStyle=hexA(P.cols[i%P.cols.length],Math.max(0,0.85*(1-rr/maxR)));
-    x.lineWidth=P.w;
-    x.beginPath();x.arc(P.cx,P.cy,Math.max(1.5,rr),0,7);x.stroke();
+    x.beginPath();x.arc(P.cx*W,P.cy*H,Math.max(1.5,rr),0,7);x.stroke();
   }
 },
 stripes(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
   x.save();x.translate(W/2,H/2);x.rotate(P.ang);x.translate(-W,-H);
-  const period=P.gap*2.4,off=((t/P.dur)*period*P.k)%period,diag=Math.hypot(W,H)*1.6;
+  const gapPx=Math.max(1,P.gap*H),period=gapPx*2.4,off=((t/P.dur)*period*P.k)%period,diag=Math.hypot(W,H)*1.6;
   let i=0;
   for(let yy=-diag+off;yy<diag;yy+=period,i++){
     x.fillStyle=P.cols[i%P.cols.length];
-    x.fillRect(-diag,yy,diag*2.4,P.gap);
+    x.fillRect(-diag,yy,diag*2.4,gapPx);
   }
   x.restore();
   x.fillStyle=hexA("#ffffff",0.07);x.fillRect(0,0,W,H);
@@ -271,11 +323,12 @@ blobs(x,t,W,H,P,C){
   for(const b of P.blobs){
     const cx=W*0.5+Math.cos(ph*b.spd+b.ph)*W*b.ox;
     const cy=H*0.5+Math.sin(ph*b.spd*1.25+b.ph)*H*b.oy;
-    const g=x.createRadialGradient(cx,cy,0,cx,cy,b.r);
+    const bR=b.r*Math.min(W,H);
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,bR);
     g.addColorStop(0,hexA(b.c,0.92));g.addColorStop(1,hexA(b.c,0.04));
     x.fillStyle=g;x.beginPath();
     for(let a=0;a<=Math.PI*2+0.001;a+=Math.PI/26){
-      const rr=b.r*(1+b.wob*Math.sin(3*a+ph*2+b.ph));
+      const rr=bR*(1+b.wob*Math.sin(3*a+ph*2+b.ph));
       const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr;
       a===0?x.moveTo(px,py):x.lineTo(px,py);
     }
@@ -311,11 +364,11 @@ grid(x,t,W,H,P,C){
 },
 shapes(x,t,W,H,P,C){
   x.fillStyle=C.bg;x.fillRect(0,0,W,H);
-  const m=H*0.1,span=H+2*m;
+  const m=H*0.1,span=H+2*m,mn=Math.min(W,H);
   for(const s of P.items){
-    const y=(((s.y+(t/P.dur)*span*s.k)%span)+span)%span-m;
-    x.save();x.translate(s.x+Math.sin(t*0.9+s.ph)*W*0.03,y);x.rotate(s.rot+t*s.vr);
-    x.fillStyle=hexA(s.c,0.92);shapePath(x,s.shape,s.s);x.fill();x.restore();
+    const y=(((s.y*span+(t/P.dur)*span*s.k)%span)+span)%span-m;
+    x.save();x.translate(s.x*W+Math.sin(t*0.9+s.ph)*W*0.03,y);x.rotate(s.rot+t*s.vr);
+    x.fillStyle=hexA(s.c,0.92);shapePath(x,s.shape,Math.max(1,s.s*mn));x.fill();x.restore();
   }
 },
 badge(x,t,W,H,P,C){
@@ -348,28 +401,28 @@ badge(x,t,W,H,P,C){
 
 /* parameter acak per item (deterministik dari seed) */
 const MPARAM={
-waves(pr,dur){const nC=4,layers=rint(pr,4,5),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
+waves(pr,dur,den){const layers=clamp(Math.round(rint(pr,4,5)*(den||1)),3,7),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
   return{dur,layers,cols:cols.slice(0,layers),yb:Array.from({length:layers},(_,i)=>0.35+0.4*i/Math.max(1,layers-1)+ (pr()-0.5)*0.06),
     frq:Array.from({length:layers},()=>rint(pr,1,3)),spd:Array.from({length:layers},()=>rrange(pr,0.6,1.6)),
     amp:Array.from({length:layers},()=>rrange(pr,0.03,0.075)),ph:Array.from({length:layers},()=>pr()*6.28)}},
-particles(pr,dur){const n=rint(pr,40,80),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
+particles(pr,dur,den){const n=clamp(Math.round(rint(pr,40,80)*(den||1)),12,160),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
   return{dur,n,dots:Array.from({length:n},()=>({x:pr(),y:pr(),r:rrange(pr,0.004,0.02),k:rint(pr,1,2),dr:rrange(pr,0.4,1.4),ph:pr()*6.28,c:pick(pr,cols)}))}},
-rings(pr,dur){return{dur,n:rint(pr,5,9),k:rint(pr,2,3),cx:rrange(pr,0.35,0.65),cy:rrange(pr,0.35,0.65),w:rrange(pr,0.008,0.02),
+rings(pr,dur,den){return{dur,n:clamp(Math.round(rint(pr,5,9)*(den||1)),3,14),k:rint(pr,2,3),cx:rrange(pr,0.35,0.65),cy:rrange(pr,0.35,0.65),w:rrange(pr,0.008,0.02),
   cols:[...PALETTES[0].colors].sort(()=>pr()-0.5)}},
-stripes(pr,dur){return{dur,gap:rrange(pr,0.03,0.07),k:rint(pr,1,2),ang:-Math.PI/rrange(pr,4,8),cols:[...PALETTES[0].colors].sort(()=>pr()-0.5)}},
-blobs(pr,dur){const n=rint(pr,3,4),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
+stripes(pr,dur,den){return{dur,gap:rrange(pr,0.03,0.07)/(den||1),k:rint(pr,1,2),ang:-Math.PI/rrange(pr,4,8),cols:[...PALETTES[0].colors].sort(()=>pr()-0.5)}},
+blobs(pr,dur,den){const n=clamp(Math.round(rint(pr,3,4)*(den||1)),2,7),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5);
   return{dur,blobs:Array.from({length:n},(_,i)=>({r:rrange(pr,0.22,0.4),ox:rrange(pr,0.1,0.28),oy:rrange(pr,0.08,0.24),
     c:cols[i%cols.length],wob:rrange(pr,0.08,0.2),ph:pr()*6.28,spd:rrange(pr,0.7,1.3)}))}},
-grid(pr,dur){return{dur,horizon:rrange(pr,0.5,0.6),k:rint(pr,2,4),gridC:pick(pr,["#00e5ff","#ff2e88","#b537f2"]),
-  stars:Array.from({length:40},()=>({x:pr(),y:pr(),ph:pr()*6.28}))}},
-shapes(pr,dur){const n=rint(pr,14,24),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5),sh=["circle","square","tri","star","plus"];
+grid(pr,dur,den){return{dur,horizon:rrange(pr,0.5,0.6),k:rint(pr,2,4),gridC:pick(pr,["#00e5ff","#ff2e88","#b537f2"]),
+  stars:Array.from({length:Math.round(40*(den||1))},()=>({x:pr(),y:pr(),ph:pr()*6.28}))}},
+shapes(pr,dur,den){const n=clamp(Math.round(rint(pr,14,24)*(den||1)),6,48),cols=[...PALETTES[0].colors].sort(()=>pr()-0.5),sh=["circle","square","tri","star","plus"];
   return{dur,items:Array.from({length:n},()=>({x:pr(),y:pr(),s:rrange(pr,0.015,0.05),rot:pr()*6.28,vr:rrange(pr,-1.5,1.5),
     k:rint(pr,1,2),ph:pr()*6.28,c:pick(pr,cols),shape:pick(pr,sh)}))}},
-badge(pr,dur){return{dur,text:"PREMIUM",sparks:Array.from({length:6},()=>({dx:rrange(pr,-1.4,1.4),dy:rrange(pr,-1.4,1.4),ph:pr()*6.28}))}},
+badge(pr,dur,den){return{dur,text:"PREMIUM",sparks:Array.from({length:clamp(Math.round(6*(den||1)),3,12)},()=>({dx:rrange(pr,-1.4,1.4),dy:rrange(pr,-1.4,1.4),ph:pr()*6.28}))}},
 };
 /* NOTE: warna params memakai palet item (dioverride saat item dibuat) */
-function makeParams(cat,pr,dur,cols){
-  const P=MPARAM[cat](pr,dur);
+function makeParams(cat,pr,dur,cols,den){
+  const P=MPARAM[cat](pr,dur,den);
   const real=[...cols.colors].sort(()=>pr()-0.5);
   if(P.cols)P.cols=real.slice(0,P.cols.length);
   if(P.dots)P.dots.forEach(d=>d.c=pick(pr,real));
@@ -390,29 +443,101 @@ const MMETA={
  badge:{t:"Animated {C} Badge Logo Reveal Motion Graphics",k:["badge","logo","reveal","intro","emblem","motion graphics","animation","premium","stamp","opener","kinetic","branding"]},
 };
 let items=[],itemSeq=1,blobs={};
-function buildMeta(cat,snap){
+/* Adobe Stock CSV: kolom Title maksimal 70 karakter, tanpa koma.
+   Potong di batas kata (bukan tengah kata) agar tidak dipotong
+   otomatis oleh Adobe saat submit. */
+function adobeTitle(s){
+  let t=String(s??"").replace(/,/g," ").replace(/\s+/g," ").trim();
+  if(t.length<=70)return t;
+  const cut=t.slice(0,70),sp=cut.lastIndexOf(" ");
+  return (sp>=40?cut.slice(0,sp):cut).trim();
+}
+function buildMeta(cat,snap,variant){
+  variant=variant||0;
+  if(snap.theme&&snap.theme!=="umum"&&TMETA[snap.theme]){
+    const tm=TMETA[snap.theme];
+    const title=adobeTitle([snap.prefix,tm.titles[variant%tm.titles.length]
+      .replace("{C}",tm.colors[Math.floor(variant/tm.titles.length)%tm.colors.length])
+      .replace("{T}",TN[cat]||"Abstract")].filter(Boolean).join(" "));
+    const kw=[],push=k=>{k=String(k).trim().toLowerCase();if(k&&!kw.includes(k))kw.push(k)};
+    tm.k.forEach(push);MMETA[cat].k.forEach(push);
+    ["motion graphics","animation","video","background","loop","seamless"].forEach(push);
+    snap.extraKw.split(",").forEach(s=>push(s));
+    return {title,desc:snap.desc,keywords:kw.slice(0,49),cat};
+  }
   const m=MMETA[cat],cword=COLOR_EN[snap.palName]||"Colorful";
-  const title=[snap.prefix,m.t.replace("{C}",cword)].filter(Boolean).join(" ").slice(0,200);
+  const title=adobeTitle([snap.prefix,m.t.replace("{C}",cword)].filter(Boolean).join(" "));
   const kw=[...m.k,"motion graphics","animation","video","background"];
   snap.extraKw.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean).forEach(k=>{if(!kw.includes(k))kw.push(k)});
-  return {title,desc:snap.desc,keywords:kw.slice(0,25),cat};
+  return {title,desc:snap.desc,keywords:kw.slice(0,49),cat};
 }
 function snapSettings(){
-  return {cols:curColors(),palName:useCustom?"Custom":PALETTES[activePal].name,
+  const themed=activeTheme!=="umum"&&THEMES[activeTheme]&&THEMES[activeTheme].colors;
+  return {cols:curColors(),palName:themed?THEMES[activeTheme].name:(useCustom?"Custom":PALETTES[activePal].name),
+    theme:activeTheme,
+    speed:parseFloat($("optSpeed").value)||1, density:parseFloat($("optDensity").value)||1,
+    glow:parseFloat($("optGlow").value), dirMode:$("optDir").value,
     badgeText:($("optBadgeText").value||"PREMIUM").toUpperCase(),
     prefix:$("metaPrefix").value.trim(),desc:$("metaDesc").value.trim(),extraKw:$("metaKw").value};
 }
-function drawMotion(x,it,t,W,H){
-  MTPL[it.cat](x,t,W,H,it.params,it.snap.cols);
+/* overlay prosedural per tema — deterministik dari seed item, digambar di atas template dasar */
+function buildOverlay(themeId,rseed,cols,density){
+  const th=THEMES[themeId];if(!th||!th.overlay)return null;
+  const pr=mulberry32(hashSeed(rseed+":ov")),type=th.overlay;
+  const n=Math.max(4,Math.round((type==="snow"?70:type==="sparkle"?16:26)*(density||1)));
+  const parts=Array.from({length:n},()=>{
+    if(type==="snow")return{x:pr(),y:pr(),r:rrange(pr,0.004,0.011),k:rrange(pr,0.5,1.1),dr:rrange(pr,0.5,1.2),ph:pr()*6.28,a:+rrange(pr,0.5,0.95).toFixed(2)};
+    if(type==="sparkle")return{x:pr(),y:pr(),s:rrange(pr,0.012,0.03),ph:pr()*6.28,c:pick(pr,[cols.colors[0],"#ffffff",cols.colors[1]])};
+    return{x:pr(),y:pr(),s:rrange(pr,0.008,0.016),rot:pr()*6.28,vr:rrange(pr,-2,2),k:rrange(pr,0.6,1.2),ph:pr()*6.28,c:pick(pr,cols.colors)};
+  });
+  return {type,parts};
 }
+function drawOverlay(x,it,te,W,H){
+  const ov=it.overlay,mn=Math.min(W,H);
+  if(ov.type==="snow"){
+    const span=H*1.12;
+    for(const p of ov.parts){
+      const yy=(((p.y*span+(te/it.dur)*span*p.k)%span)+span)%span-H*0.06;
+      x.fillStyle=`rgba(255,255,255,${p.a})`;
+      x.beginPath();x.arc(p.x*W+Math.sin(te*p.dr+p.ph)*W*0.02,yy,Math.max(0.6,p.r*mn),0,7);x.fill();
+    }
+  }else if(ov.type==="sparkle"){
+    for(const p of ov.parts){
+      const a=Math.max(0,Math.sin(te*1.8+p.ph));if(a<0.06)continue;
+      x.fillStyle=hexA(p.c,a*0.9);drawSparkle(x,p.x*W,p.y*H,p.s*mn*(0.4+0.6*a));x.fill();
+    }
+  }else if(ov.type==="confetti"){
+    const span=H*1.15;
+    for(const p of ov.parts){
+      const yy=(((p.y*span+(te/it.dur)*span*p.k)%span)+span)%span-H*0.07;
+      x.save();x.translate(p.x*W+Math.sin(te+p.ph)*W*0.015,yy);x.rotate(p.rot+te*p.vr);
+      x.fillStyle=hexA(p.c,0.95);x.fillRect(-p.s*mn,-p.s*mn*0.6,p.s*mn*2,p.s*mn*1.2);x.restore();
+    }
+  }
+}
+function drawMotion(x,it,t,W,H){
+  const P=it.params,sp=P.speed||1;
+  let te=((t*sp)%it.dur+it.dur)%it.dur;
+  if((P.dir||1)<0)te=(it.dur-te)%it.dur;
+  MTPL[it.cat](x,te,W,H,P,it.snap.cols);
+  if(it.overlay)drawOverlay(x,it,te,W,H);
+  const g=(P.glow==null||isNaN(P.glow))?1:P.glow;
+  if(g>1.01){x.save();x.globalAlpha=Math.min(0.55,(g-1)*0.5);x.globalCompositeOperation="screen";x.drawImage(x.canvas,0,0);x.restore()}
+  else if(g<0.99){x.save();x.fillStyle=`rgba(0,0,0,${((1-g)*0.35).toFixed(3)})`;x.fillRect(0,0,W,H);x.restore()}
+}
+function ratioTag(w,h){return w===h?"1x1":(w>h?"16x9":"9x16")}
+function ratioLabel(w,h){return w===h?"1:1":(w>h?"16:9":"9:16")}
 function makeMotionItem(seedStr,idx,cat,dur,fps,res,snap){
   const rseed=seedStr+":"+idx;
   const pr=mulberry32(hashSeed(rseed+":p"));
-  const params=makeParams(cat,pr,dur,snap.cols);
+  const params=makeParams(cat,pr,dur,snap.cols,snap.density);
   if(cat==="badge")params.text=snap.badgeText;
+  params.speed=snap.speed;params.glow=snap.glow;
+  params.dir=snap.dirMode==="terbalik"?-1:(snap.dirMode==="acak"?(pr()<0.5?-1:1):1);
+  const overlay=buildOverlay(snap.theme,rseed,snap.cols,snap.density);
   const d=todayStr().replace(/-/g,"");
-  return {id:"sm"+Math.floor(pr()*1e9).toString(36),cat,rseed,dur,fps,W:res.w,H:res.h,params,snap,
-    meta:buildMeta(cat,snap),fname:`stm-${cat}-${d}-${String(itemSeq++).padStart(2,"0")}`};
+  return {id:"sm"+Math.floor(pr()*1e9).toString(36),cat,rseed,dur,fps,W:res.w,H:res.h,params,snap,overlay,
+    meta:buildMeta(cat,snap,idx),fname:`stm-${snap.theme!=="umum"?snap.theme+"-":""}${cat}-${d}-${String(itemSeq++).padStart(2,"0")}-${ratioTag(res.w,res.h)}`};
 }
 
 /* ================= PREVIEW LIVE ================= */
@@ -439,10 +564,11 @@ function renderGallery(){
   for(const it of items){
     const card=document.createElement("div");card.className="vcard";
     const catName=CATS.find(c=>c.id===it.cat).name;
-    card.innerHTML=`<div class="vthumb"><canvas class="preview" width="320" height="180"></canvas><span class="badge-live">● LIVE</span></div>
+    const pw=it.W>=it.H?320:Math.round(320*it.W/it.H),ph=it.H>=it.W?320:Math.round(320*it.H/it.W);
+    card.innerHTML=`<div class="vthumb"><canvas class="preview" width="${pw}" height="${ph}" style="aspect-ratio:${it.W}/${it.H}"></canvas><span class="badge-live">● LIVE</span></div>
       <div class="vbody"><b>${it.meta.title}</b>
-      <div class="vmeta">${catName} • ${it.dur} dtk • ${it.fps} fps • ${it.W}×${it.H} • MP4</div>
-      <div class="tags"><span class="hl">${it.cat}</span><span>motion graphics</span><span>loop</span><span>+${it.meta.keywords.length-3} kw</span></div>
+      <div class="vmeta">${catName} • ${it.dur} dtk • ${it.fps} fps • ${it.W}×${it.H} (${ratioLabel(it.W,it.H)}) • MP4</div>
+      <div class="tags"><span class="hl">${it.cat}</span>${it.snap.theme!=="umum"?`<span class="hl">${THEMES[it.snap.theme].name}</span>`:""}<span>motion graphics</span><span>loop</span><span>${it.meta.keywords.length} kw</span></div>
       <div class="vrow"><button class="btn rec small" data-act="dl">⬇ MP4</button><button class="btn small" data-act="detail">🔍 Detail</button></div></div>`;
     const cv=card.querySelector("canvas");
     previews.push({cv,ctx:cv.getContext("2d"),it});
@@ -461,7 +587,8 @@ async function generatePack(seedStr,label,count){
   count=count||Math.max(1,Math.min(24,parseInt($("optCount").value)||8));
   const dur=parseInt($("optDur").value),fps=parseInt($("optFps").value);
   const [rw,rh]=$("optRes").value.split("x").map(Number);
-  const r=mulberry32(hashSeed(seedStr)),cats=activeCats(),snap=snapSettings();
+  const r=mulberry32(hashSeed(seedStr)),snap=snapSettings();
+  const cats=(snap.theme!=="umum"&&THEMES[snap.theme]&&THEMES[snap.theme].cats)?THEMES[snap.theme].cats:activeCats();
   progress(0);
   for(let i=0;i<count;i++){
     const cat=cats[Math.floor(r()*cats.length)];
@@ -470,7 +597,7 @@ async function generatePack(seedStr,label,count){
     if(i%4===3)await new Promise(res=>setTimeout(res,0));
   }
   progress(null);renderGallery();
-  updatePackBar(label,`${count} video • ${cats.join(", ")} • ${prettyDate()} • ${rw}×${rh} • ${dur} dtk`);
+  updatePackBar(label,`${count} video • tema ${THEMES[snap.theme].name} • ${cats.join(", ")} • ${prettyDate()} • ${rw}×${rh} (${ratioLabel(rw,rh)}) • ${dur} dtk`);
   toast(`✅ ${count} motion graphics siap — klik ⬇ MP4 untuk mengunduh`);
 }
 $("btnGenerate").onclick=()=>generatePack("manual-"+Date.now()+"-"+Math.random(),"Paket Manual");
@@ -485,7 +612,11 @@ function openDetail(it){
   $("detailSub").textContent=`${it.fname}.mp4 • ${it.dur} dtk • ${it.fps} fps • ${it.W}×${it.H}`;
   $("dTitle").value=it.meta.title;$("dDesc").value=it.meta.desc;$("dKw").value=it.meta.keywords.join(", ");
   $("modalDetail").classList.add("open");
-  const cv=$("detailCanvas"),cx=cv.getContext("2d"),t0=performance.now();
+  const cv=$("detailCanvas");
+  cv.width=it.W>=it.H?960:Math.round(960*it.W/it.H);
+  cv.height=it.H>=it.W?960:Math.round(960*it.H/it.W);
+  cv.style.aspectRatio=it.W+"/"+it.H;
+  const cx=cv.getContext("2d"),t0=performance.now();
   cancelAnimationFrame(detailRAF);
   (function loop(){
     if(!$("modalDetail").classList.contains("open"))return;
@@ -495,9 +626,9 @@ function openDetail(it){
 }
 $("btnSaveMeta").onclick=()=>{
   if(!detailItem)return;
-  detailItem.meta.title=$("dTitle").value.slice(0,200);
+  detailItem.meta.title=adobeTitle($("dTitle").value);
   detailItem.meta.desc=$("dDesc").value;
-  detailItem.meta.keywords=$("dKw").value.split(",").map(s=>s.trim()).filter(Boolean).slice(0,25);
+  detailItem.meta.keywords=$("dKw").value.split(",").map(s=>s.trim()).filter(Boolean).slice(0,49);
   renderGallery();toast("💾 Metadata tersimpan");
 };
 $("btnDlDetail").onclick=()=>{if(detailItem)recordAndDownload(detailItem)};
@@ -610,7 +741,19 @@ $("btnCsv").onclick=()=>{
   toast("✅ CSV metadata terunduh");
 };
 
-/* ================= UI: kategori & palet ================= */
+/* ================= UI: tema, kategori & palet ================= */
+function renderThemes(){
+  const box=$("themeChips");box.innerHTML="";
+  Object.entries(THEMES).forEach(([id,th])=>{
+    const b=document.createElement("button");b.className="tchip"+(id===activeTheme?" active":"");
+    b.textContent=th.name;
+    b.onclick=()=>{activeTheme=id;renderThemes();toast(id==="umum"?"🎯 Tema Umum — palet & kategori bebas":"🎯 Tema aktif: "+th.name)};
+    box.appendChild(b);
+  });
+}
+[["optSpeed","speedVal"],["optDensity","densityVal"],["optGlow","glowVal"]].forEach(([inp,lab])=>{
+  $(inp).addEventListener("input",()=>{$(lab).textContent=(+$(inp).value).toFixed(1)+"×"});
+});
 function renderCats(){
   const box=$("catList");box.innerHTML="";
   CATS.forEach(c=>{
@@ -639,7 +782,7 @@ $("btnShufflePal").onclick=()=>{
   $("cbg").value=Math.random()<0.5?"#ffffff":"#111122";
   useCustom=true;renderPalettes();toast("🎲 Warna diacak");
 };
-renderCats();renderPalettes();
+renderThemes();renderCats();renderPalettes();
 </script>
 </body>
 </html>
